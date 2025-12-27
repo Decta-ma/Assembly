@@ -6,46 +6,54 @@ section .text
   global _start
 
 _start:
-
   mov rax, 123456789
   call _printRAX
-  
+
+  ; چاپ یک newline در انتها
+  mov rax, 1
+  mov rdi, 1
+  mov rsi, newline
+  mov rdx, 1
+  syscall
+
   mov rax, 60
   mov rdi, 0
   syscall
 
+section .data
+  newline db 10   ; کاراکتر خط جدید
+
 _printRAX:
-  mov rcx, digitSpace
-  mov rbx, 10
-  mov [rcx], rbx
+  mov rcx, digitSpace     ; rcx = آدرس ابتدای بافر
+  mov rbx, 10             ; مبنای ۱۰
+  mov [rcx], byte 10      ; نگهبان: newline در ابتدای بافر (که بعداً آخر رشته می‌شود)
   inc rcx
   mov [digitSpacePos], rcx
 
-_pritntRAXLoop:
+_printRAXLoop:
   xor rdx, rdx
-  div rbx
-  add rdx, 48
+  div rbx                 ; rdx = رقم یکان
+  add dl, '0'             ; تبدیل به ASCII
 
   mov rcx, [digitSpacePos]
   mov [rcx], dl
   inc rcx
   mov [digitSpacePos], rcx
 
-  cmp rax, 0
-  jne _pritntRAXLoop
+  test rax, rax           ; یا cmp rax, 0
+  jnz _printRAXLoop
 
 _printRAXLoop2:
   mov rcx, [digitSpacePos]
-
   dec rcx
   mov [digitSpacePos], rcx
 
-  cmp rcx, digitSpace      
-  jle _donePrinting 
-  
+  cmp rcx, digitSpace
+  jbe _donePrinting       ; jle یا jbe (زیرا برابر هم باید تمام شود)
+
   mov rax, 1
   mov rdi, 1
-  mov rsi, rcx 
+  mov rsi, rcx
   mov rdx, 1
   syscall
 
